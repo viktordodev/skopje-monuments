@@ -1,4 +1,5 @@
 import { Color, MathUtils, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, WebGLRenderer } from 'three';
+import { listenTilt } from './tilt';
 import { UI } from '../ui/ui';
 import { Stage } from '../stage';
 import { SHOTS } from '../stage/layout';
@@ -29,7 +30,7 @@ function pickQuality(reduced: boolean): Quality {
     reflectionScale: weak ? 0.3 : 0.5,
     shadowMapSize: weak ? 1024 : 2048,
     anisotropy: weak ? 4 : 8,
-    parallax: !coarse && !reduced,
+    parallax: !reduced,
   };
 }
 
@@ -84,11 +85,14 @@ export async function start() {
   let needsResize = false;
   addEventListener('resize', () => (needsResize = true));
 
+  // the hand-held drift: the mouse on desktop, the phone's tilt on touch screens
   const pointer = { x: 0, y: 0 };
   addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') return;
     pointer.x = (e.clientX / innerWidth) * 2 - 1;
     pointer.y = -((e.clientY / innerHeight) * 2 - 1);
   });
+  if (!reduced && matchMedia('(pointer: coarse)').matches) listenTilt(pointer);
 
   let uSmooth = scroll.station();
   let last = performance.now();
