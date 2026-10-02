@@ -3,10 +3,10 @@ import type { SiteText } from './types';
 export const en: SiteText = {
   lang: 'en',
   htmlLang: 'en',
-  title: 'Skopje — Nine Monuments of the Centre',
+  title: 'Skopje in 3D — Nine Monuments of North Macedonia’s Capital',
   description:
     'Nine landmarks of central Skopje, North Macedonia, in one interactive 3D scene — from the 6th-century Kale Fortress to the 66-metre Millennium Cross.',
-  ogImageAlt: 'The Warrior on a Horse statue on Macedonia Square in Skopje, backlit by sun rays fanning across a violet sky.',
+  ogImageAlt: 'The word Skopje beside the Warrior on a Horse statue and its fountain on Macedonia Square, backlit by sun rays fanning across a violet sky.',
   ogLocale: 'en_US',
   skipLink: 'Skip to content',
   brand: 'Skopje',

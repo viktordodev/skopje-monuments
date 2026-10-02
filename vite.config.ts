@@ -1,3 +1,4 @@
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import { SITES } from './src/content';
@@ -79,8 +80,35 @@ ${entry('/mk/')}
   };
 }
 
+/**
+ * Dev only: lets the running page save a rendered social image, `POST /__og/og.jpg` (or og-mk.jpg) with a
+ * JPEG body writes it to public/. Used to make the share images from the live scene; absent from builds.
+ */
+function saveShareImage(): Plugin {
+  return {
+    name: 'skopje-save-og',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/__og/', (req, res) => {
+        const name = (req.url ?? '').replace(/^\//, '');
+        if (req.method !== 'POST' || !/^og(-mk)?\.jpg$/.test(name)) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+        const chunks: Buffer[] = [];
+        req.on('data', (c: Buffer) => chunks.push(c));
+        req.on('end', () => {
+          writeFileSync(fileURLToPath(new URL(`./public/${name}`, import.meta.url)), Buffer.concat(chunks));
+          res.end('saved');
+        });
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [prerender(), crawlFiles()],
+  plugins: [prerender(), crawlFiles(), saveShareImage()],
   build: {
     target: 'es2022',
     chunkSizeWarningLimit: 900,

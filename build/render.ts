@@ -6,8 +6,9 @@ import type { Lang, SiteText, Stat } from '../src/content';
 export const SITE_URL = (process.env.SITE_URL ?? 'https://skopje-monuments.pages.dev').replace(/\/$/, '');
 const AUTHOR = 'Viktor Dodev';
 
-/** Social preview image: only advertised once `public/og.jpg` (1200×630) exists. */
-const HAS_OG = existsSync(new URL('../public/og.jpg', import.meta.url));
+/** Social preview image per language (1200×630, in public/); a page only advertises one that exists. */
+const ogFile = (l: Lang) => (l === 'en' ? 'og.jpg' : 'og-mk.jpg');
+const hasOg = (l: Lang) => existsSync(new URL(`../public/${ogFile(l)}`, import.meta.url));
 
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -48,6 +49,7 @@ export function renderHead(lang: Lang): string {
   const t = SITES[lang];
   const alt = SITES[otherLang(lang)];
   const url = SITE_URL + pathFor(lang);
+  const HAS_OG = hasOg(lang);
   const list = {
     '@type': 'ItemList',
     name: t.title,
@@ -100,10 +102,11 @@ export function renderHead(lang: Lang): string {
     <meta property="og:url" content="${url}" />
     <meta property="og:locale" content="${t.ogLocale}" />
     <meta property="og:locale:alternate" content="${alt.ogLocale}" />
-    ${HAS_OG ? `<meta property="og:image" content="${SITE_URL}/og.jpg" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta property="og:image:alt" content="${esc(t.ogImageAlt)}" />` : ''}
+    ${HAS_OG ? `<meta property="og:image" content="${SITE_URL}/${ogFile(lang)}" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta property="og:image:alt" content="${esc(t.ogImageAlt)}" />` : ''}
     <meta name="twitter:card" content="${HAS_OG ? 'summary_large_image' : 'summary'}" />
     <meta name="twitter:title" content="${esc(t.title)}" />
     <meta name="twitter:description" content="${esc(t.description)}" />
+    ${HAS_OG ? `<meta name="twitter:image" content="${SITE_URL}/${ogFile(lang)}" />\n    <meta name="twitter:image:alt" content="${esc(t.ogImageAlt)}" />` : ''}
     <script type="application/ld+json">${JSON.stringify(ld)}</script>`;
 }
 
