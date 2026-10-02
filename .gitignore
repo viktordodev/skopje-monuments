@@ -1,0 +1,15 @@
+node_modules
+dist
+.DS_Store
+.wrangler
+.claude/
+
+# Legacy files from the earlier realistic-map version; nothing in the current build imports them.
+src/world/
+src/data/
+src/core/cameraRig.ts
+src/stage/monuments/mosque.ts
+scripts/
+public/textures/
+kale_osm.json
+src/types/n8ao.d.ts
