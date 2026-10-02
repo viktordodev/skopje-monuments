@@ -321,8 +321,8 @@ function fountainSpray(count: number, per: number): Points {
           float t = fract(aSeed.x + uTime * 1.6);
           vec3 land = arcPoint(dir, aSeed.y, 1.0);
           float ang = r1 * 6.2832;
-          vec3 out = (dir * cos(ang) + side * sin(ang)) * (0.4 + r2 * 0.9);
-          p = land + out * t;
+          vec3 fling = (dir * cos(ang) + side * sin(ang)) * (0.4 + r2 * 0.9);
+          p = land + fling * t;
           p.y = land.y - 0.35 + t * (1.0 - t) * 4.0 * (0.25 + r3 * (aSeed.y < 0.5 ? 0.7 : 1.1));
           vA = (1.0 - t) * 0.7;
           size = 0.6 + r3 * 0.6;

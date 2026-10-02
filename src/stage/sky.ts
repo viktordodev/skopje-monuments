@@ -106,6 +106,50 @@ export class Sky {
           float disk = smoothstep(uSunR, uSunR * 0.94, ang);
           col = mix(col, uSun * 7.0, disk * above);
 
+          // a waxing three-quarter moon, lit from the right: bright highlands, dark seas and craters,
+          // shaded like the real moon (bright to the limb, a soft terminator), faint earthshine on the
+          // night side, hazed by the same sky it sits in and about 70% opaque
+          float moonCover = 0.0;
+          if (uMoon > 0.001) {
+            vec3 md = normalize(uMoonDir);
+            float mang = acos(clamp(dot(d, md), -1.0, 1.0));
+            if (mang < uMoonR * 9.0) {
+              vec3 mr = normalize(cross(md, vec3(0.0, 1.0, 0.0)));
+              vec3 mu = cross(mr, md);
+              vec2 q = vec2(dot(d, mr), dot(d, mu)) / uMoonR;
+              float rr = length(q);
+              float disk = smoothstep(1.0, 0.965, rr);
+              vec3 n = vec3(q, sqrt(max(1.0 - rr * rr, 0.0)));
+              // surface: large irregular seas from warped noise, then a scatter of small craters
+              vec2 w = q + 0.35 * vec2(fbm2(q * 1.1 + 4.2), fbm2(q * 1.1 + 9.7));
+              float seas = smoothstep(0.48, 0.64, fbm2(w * 1.25 + vec2(1.7, 6.3)));
+              vec2 cg = q * 7.0;
+              vec2 ci = floor(cg);
+              float cr = hash21(ci);
+              vec2 cf = fract(cg) - 0.5 - (vec2(hash21(ci + 3.1), hash21(ci + 7.7)) - 0.5) * 0.5;
+              float cd = length(cf) / (0.12 + 0.2 * cr);
+              float crater = step(0.72, cr) * (smoothstep(1.0, 0.75, cd) * 0.10 - smoothstep(0.75, 0.2, cd) * 0.08);
+              float albedo = mix(0.86, 0.52, seas) + crater + (fbm2(q * 9.0) - 0.5) * 0.06;
+              // Lommel-Seeliger: the moon stays bright right up to the limb, unlike a matte ball
+              vec3 L = vec3(0.866, 0.0, 0.5);
+              float ci2 = max(dot(n, L), 0.0);
+              float ce = max(n.z, 0.001);
+              float lit = clamp(0.35 + ci2 / (ci2 + ce) * 1.6, 0.0, 1.0);
+              lit *= smoothstep(-0.02, 0.12, dot(n, L));
+              vec3 skyHere = col;
+              vec3 moon = vec3(1.0, 0.95, 0.86) * albedo * lit;
+              moon = mix(moon, moon * 0.82 + skyHere * 0.35, 0.3);
+              float earthshine = 0.05 * albedo * (1.0 - smoothstep(-0.05, 0.1, dot(n, L)));
+              float a = disk * uMoon * 0.7;
+              col = mix(col, moon, a * smoothstep(-0.03, 0.09, dot(n, L))) + vec3(0.6, 0.65, 0.85) * earthshine * a;
+              moonCover = disk;
+              // glow around the whole disk, tinted by the sky, stronger on the lit side
+              float side = 0.6 + 0.4 * clamp(q.x / max(rr, 1e-3), -1.0, 1.0);
+              float glow = exp(-max(rr - 0.9, 0.0) * 2.2) * 0.07 + exp(-max(rr - 0.9, 0.0) * 0.55) * 0.035;
+              col += mix(vec3(0.95, 0.92, 1.0), uTop * 2.5 + 0.2, 0.4) * glow * side * uMoon * (1.0 - disk * 0.6);
+            }
+          }
+
           // stars
           if (uStars > 0.001) {
             vec3 p = d * 260.0;
@@ -114,28 +158,7 @@ export class Sky {
             vec3 fp = fract(p) - 0.5;
             float star = step(0.9965, rnd) * smoothstep(0.22, 0.0, length(fp));
             float tw = 0.6 + 0.4 * sin(t * (1.5 + rnd * 4.0) + rnd * 60.0);
-            col += vec3(1.0, 0.95, 0.9) * star * tw * uStars * smoothstep(0.05, 0.35, h) * 2.2;
-          }
-
-          // a waxing three-quarter moon: lit from the right, the dark limb left open to the sky, 70% opaque
-          if (uMoon > 0.001) {
-            vec3 md = normalize(uMoonDir);
-            float mang = acos(clamp(dot(d, md), -1.0, 1.0));
-            if (mang < uMoonR * 6.0) {
-              vec3 mr = normalize(cross(md, vec3(0.0, 1.0, 0.0)));
-              vec3 mu = cross(mr, md);
-              vec2 q = vec2(dot(d, mr), dot(d, mu)) / uMoonR;
-              float rr = length(q);
-              vec3 n = vec3(q, sqrt(max(1.0 - rr * rr, 0.0)));
-              // phase angle 60 degrees: (1 + cos 60) / 2 = three quarters of the face in sunlight
-              float lit = smoothstep(-0.04, 0.1, dot(n, vec3(0.866, 0.0, 0.5)));
-              float seas = smoothstep(0.45, 0.75, fbm2(q * 1.3 + vec2(3.7, 1.2)));
-              vec3 moon = vec3(1.0, 0.96, 0.88) * (0.75 + 0.25 * n.z) * (1.0 - seas * 0.32);
-              float disk = smoothstep(1.0, 0.96, rr);
-              float halo = exp(-max(rr - 1.0, 0.0) * 1.6) * (1.0 - disk);
-              col += vec3(0.85, 0.82, 0.95) * halo * 0.045 * uMoon;
-              col = mix(col, moon * 0.9, disk * lit * uMoon * 0.7);
-            }
+            col += vec3(1.0, 0.95, 0.9) * star * tw * uStars * smoothstep(0.05, 0.35, h) * 2.2 * (1.0 - moonCover);
           }
 
           // below the horizon the dome fades into the ground haze
