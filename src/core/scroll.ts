@@ -15,6 +15,8 @@ export class ScrollDirector {
   private snapping = false;
   /** The station the page last came to rest on; gestures are judged relative to it. */
   private settled = 0;
+  /** True from the reader's first input after settling until the page settles again. */
+  private gesture = false;
   private copies: HTMLElement[] = [];
 
   constructor(reducedMotion: boolean) {
@@ -33,6 +35,7 @@ export class ScrollDirector {
       const input = () => {
         this.lastInput = performance.now();
         this.snapping = false;
+        this.gesture = true;
       };
       for (const ev of ['wheel', 'touchstart', 'touchmove', 'keydown', 'pointerdown'] as const)
         addEventListener(ev, input, { passive: true });
@@ -65,6 +68,7 @@ export class ScrollDirector {
       if (idx < 0) return;
       e.preventDefault();
       this.settled = idx;
+      this.gesture = false;
       this.scrollTo(this.targets[idx], false);
       history.replaceState(null, '', `#${id}`);
     });
@@ -86,8 +90,12 @@ export class ScrollDirector {
     const u = this.stationAt(lenis.targetScroll);
     const last = this.targets.length - 1;
     const off = u - this.settled;
-    const n =
-      Math.abs(off) < 0.04
+    // Without input from the reader the page only re-aligns to where it rests. Stops can shift under a
+    // still page (a phone's address bar sliding back changes the viewport height); that must never read
+    // as a gesture and carry the reader to the previous chapter.
+    const n = !this.gesture
+      ? this.settled
+      : Math.abs(off) < 0.04
         ? this.settled
         : off > 0
           ? Math.min(last, Math.ceil(u - 0.04))
@@ -96,6 +104,7 @@ export class ScrollDirector {
     const d = Math.abs(from - n);
     if (d < 0.002 && Math.abs(lenis.targetScroll - this.targets[n]) < 1) {
       this.settled = n;
+      this.gesture = false;
       return;
     }
     this.snapping = true;
@@ -105,6 +114,7 @@ export class ScrollDirector {
       onComplete: () => {
         this.snapping = false;
         this.settled = n;
+        this.gesture = false;
       },
     });
   }
@@ -150,6 +160,7 @@ export class ScrollDirector {
     const jump = () => {
       this.measure();
       this.settled = idx;
+      this.gesture = false;
       this.scrollTo(this.targets[idx], true);
     };
     jump();
