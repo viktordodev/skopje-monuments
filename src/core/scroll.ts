@@ -116,7 +116,13 @@ export class ScrollDirector {
   private measure() {
     const vh = innerHeight;
     const max = Math.max(0, document.documentElement.scrollHeight - vh);
-    for (const c of this.copies) c.classList.toggle('overflows', c.scrollHeight > c.clientHeight + 2);
+    for (const c of this.copies) {
+      const over = c.scrollHeight > c.clientHeight + 2;
+      c.classList.toggle('overflows', over);
+      // a box that scrolls must be reachable by keyboard so its text can be scrolled with the arrow keys
+      if (over) c.tabIndex = 0;
+      else c.removeAttribute('tabindex');
+    }
     const scrollY = window.scrollY;
     this.targets = this.sections.map((el, i) => {
       if (i === 0) return 0;

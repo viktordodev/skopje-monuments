@@ -70,6 +70,7 @@ export class UI {
       this.root.classList.toggle('menu-open', open);
       btn.setAttribute('aria-expanded', String(open));
       btn.setAttribute('aria-label', open ? btn.dataset.close! : btn.dataset.open!);
+      for (const el of document.querySelectorAll<HTMLElement>('#story, .rail, .skip')) el.inert = open;
       if (open) menu.querySelector<HTMLElement>('a')?.focus({ preventScroll: true });
     };
     btn.addEventListener('click', () => set(!this.root.classList.contains('menu-open')));

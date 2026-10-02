@@ -4,7 +4,7 @@
   --ink: #0d0a16;
   --paper: #fbf3e8;
   --paper-dim: rgba(251, 243, 232, 0.74);
-  --paper-faint: rgba(251, 243, 232, 0.42);
+  --paper-faint: rgba(251, 243, 232, 0.6); /* ≥ 4.5:1 on --ink */
   --line: rgba(251, 243, 232, 0.2);
   --sun: #ffd27a;
   --red: #ff5a3c;
@@ -129,7 +129,8 @@ html[data-side='right'] .scrim::after {
   opacity: 1;
 }
 html[data-side='hero'] .scrim::before {
-  background: linear-gradient(160deg, rgba(14, 8, 24, 0.55) 0%, transparent 42%), linear-gradient(0deg, rgba(14, 8, 24, 0.55) 0%, transparent 30%);
+  background: linear-gradient(160deg, rgba(14, 8, 24, 0.55) 0%, transparent 42%), linear-gradient(0deg, rgba(14, 8, 24, 0.55) 0%, transparent 30%),
+    linear-gradient(90deg, rgba(14, 8, 24, 0.45) 0%, rgba(14, 8, 24, 0.2) 32%, transparent 52%);
 }
 
 .grain {
@@ -772,7 +773,13 @@ main {
   margin: 26px 0 0;
   font-size: 15.5px;
   color: var(--paper-dim);
-  text-shadow: 0 1px 20px rgba(14, 8, 24, 0.5);
+  /* a tight dark edge plus a wide haze keeps the copy legible where it crosses the lit fountain and wordmark */
+  text-shadow: 0 1px 2px rgba(14, 8, 24, 0.75), 0 0 14px rgba(14, 8, 24, 0.6), 0 1px 30px rgba(14, 8, 24, 0.5);
+}
+.hero__note,
+.hero .label,
+.hero .cta {
+  text-shadow: 0 1px 2px rgba(14, 8, 24, 0.75), 0 0 12px rgba(14, 8, 24, 0.55);
 }
 .hero__note {
   margin: 18px 0 0;
@@ -966,6 +973,10 @@ html.no-webgl .nowebgl {
   html[data-side] .scrim::before {
     background: linear-gradient(0deg, rgba(14, 8, 24, 0.82) 0%, rgba(14, 8, 24, 0.55) 38%, transparent 62%);
     opacity: 1;
+  }
+  html[data-side='hero'] .scrim::before {
+    background: linear-gradient(0deg, rgba(14, 8, 24, 0.8) 0%, rgba(14, 8, 24, 0.45) 45%, rgba(14, 8, 24, 0.15) 80%),
+      linear-gradient(90deg, rgba(14, 8, 24, 0.35) 0%, transparent 75%);
   }
   html[data-side] .scrim::after {
     opacity: 0;

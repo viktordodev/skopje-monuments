@@ -124,7 +124,7 @@ function renderChapter(t: SiteText, i: number): string {
   const c = t.monuments[m.id];
   return `
   <section class="chapter chapter--${m.text}" id="${m.id}" data-station="${i + 1}" aria-labelledby="${m.id}-title">
-    <div class="chapter__copy">
+    <div class="chapter__copy" role="group" aria-labelledby="${m.id}-title">
       <p class="label"><span class="label__num">${pad(i + 1)}</span><span class="label__dash" aria-hidden="true"></span><span>${esc(c.place)}</span></p>
       <h2 class="split" id="${m.id}-title">${words(c.name)}</h2>
       <p class="tagline">${esc(c.tagline)}</p>
@@ -171,7 +171,7 @@ export function renderBody(lang: Lang): string {
       <span class="brand__text"><span class="brand__name">${esc(t.brand)}</span><span class="brand__sub">${esc(t.brandSub)}</span></span>
     </a>
     <div class="nav__right">
-      <a class="lang" href="${pathFor(otherLang(lang))}" hreflang="${other.htmlLang}" lang="${other.htmlLang}" aria-label="${esc(t.switchLabel)}">${esc(t.switchName)}</a>
+      <a class="lang" href="${pathFor(otherLang(lang))}" hreflang="${other.htmlLang}" lang="${other.htmlLang}" aria-label="${esc(t.switchName)} · ${esc(t.switchLabel)}">${esc(t.switchName)}</a>
       <button class="burger" type="button" aria-expanded="false" aria-controls="menu" data-open="${esc(t.menu.open)}" data-close="${esc(t.menu.close)}" aria-label="${esc(t.menu.open)}"><i></i><i></i></button>
     </div>
   </header>
