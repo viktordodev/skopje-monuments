@@ -78,10 +78,17 @@ export class Rig {
     camera.lookAt(this.l);
     this.right.set(1, 0, 0).applyQuaternion(camera.quaternion);
     camera.position.addScaledVector(this.right, this.mx * 3.2);
-    camera.position.y += this.my * 1.8;
+    // up raises the camera; down only dips the view, so a hand tilting the phone never sinks it into the ground
+    camera.position.y += Math.max(this.my, 0) * 1.8;
+    this.l.y += Math.min(this.my, 0) * 2.4;
     this.l.addScaledVector(this.right, -this.mx * 1.2);
-    const floor = this.ground(camera.position.x, camera.position.z) + 2;
-    if (camera.position.y < floor) camera.position.y = floor;
+    // keep clear of the ground under the camera and just ahead of it (a rising slope in front fills a
+    // close view as badly as being under it)
+    this.d.subVectors(this.l, camera.position).setY(0).normalize();
+    const c = camera.position;
+    const floor =
+      Math.max(this.ground(c.x, c.z), this.ground(c.x + this.d.x * 4, c.z + this.d.z * 4), this.ground(c.x + this.d.x * 9, c.z + this.d.z * 9)) + 2.2;
+    if (c.y < floor) c.y = floor;
     camera.lookAt(this.l);
     // a slow breathing drift so the frame is never quite still
     camera.rotateZ(Math.sin(performance.now() / 4200) * 0.004);
