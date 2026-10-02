@@ -46,6 +46,8 @@ export class Land {
   private readonly ridgeMats: MeshBasicMaterial[] = [];
   private readonly groundMat: Material & { color: Color };
   private readonly plinths: Plinth[];
+  /** The ground mesh's grid, for heights that match the drawn surface rather than the smooth formula. */
+  private readonly grid: { x0: number; z0: number; dx: number; dz: number; nx: number; nz: number; h: Float32Array };
 
   constructor(plinths: Plinth[]) {
     this.plinths = plinths;
@@ -61,6 +63,16 @@ export class Land {
       pos.setY(i, this.height(x, z));
     }
     geo.computeVertexNormals();
+    const nx = 241;
+    this.grid = {
+      x0: pos.getX(0),
+      z0: pos.getZ(0),
+      dx: pos.getX(1) - pos.getX(0),
+      dz: pos.getZ(nx) - pos.getZ(0),
+      nx,
+      nz: pos.count / nx,
+      h: Float32Array.from({ length: pos.count }, (_, i) => pos.getY(i)),
+    };
     const surf = mottled(11, [120, 96, 88], 0.7, 6, 512);
     this.groundMat = stylized({ surface: surf, repeat: [60, 100], bumpScale: 2, roughness: 0.95, rim: 0.35 });
     this.ground = new Mesh(geo, this.groundMat);
@@ -106,6 +118,28 @@ export class Land {
       h = h * (1 - k) + p.y * k;
     }
     return h;
+  }
+
+  /**
+   * Height of the ground as drawn: interpolated on the same triangles as the mesh. The smooth formula can sit
+   * above the mesh where the land changes faster than one grid cell (the quay walls fall in ~7 units, a cell is
+   * 10), so anything standing on the ground (grass, trees) uses this instead.
+   */
+  surfaceHeight(x: number, z: number): number {
+    const g = this.grid;
+    const fx = (x - g.x0) / g.dx;
+    const fz = (z - g.z0) / g.dz;
+    const ix = Math.floor(fx);
+    const iz = Math.floor(fz);
+    if (ix < 0 || iz < 0 || ix >= g.nx - 1 || iz >= g.nz - 1) return this.height(x, z);
+    const u = fx - ix;
+    const v = fz - iz;
+    // PlaneGeometry splits each cell into (a, b, d) and (b, c, d)
+    const ha = g.h[ix + g.nx * iz];
+    const hb = g.h[ix + g.nx * (iz + 1)];
+    const hc = g.h[ix + 1 + g.nx * (iz + 1)];
+    const hd = g.h[ix + 1 + g.nx * iz];
+    return u + v <= 1 ? ha + u * (hd - ha) + v * (hb - ha) : hc + (1 - u) * (hb - hc) + (1 - v) * (hd - hc);
   }
 
   update(p: Palette) {

@@ -19,7 +19,15 @@ export class Rig {
   readonly focus = new Vector3();
   shift = 0;
 
-  constructor(private readonly shots: Shot[], private readonly parallax: boolean) {
+  /**
+   * @param ground height of the drawn ground (or water) under a point; the camera never drops below it plus
+   * a clearance, whatever the portrait step-back, the spline between shots or the hand-held drift do.
+   */
+  constructor(
+    private readonly shots: Shot[],
+    private readonly parallax: boolean,
+    private readonly ground: (x: number, z: number) => number = () => -Infinity,
+  ) {
     this.pos = new CatmullRomCurve3(shots.map((s) => s.pos.clone()), false, 'catmullrom', 0.4);
     this.look = new CatmullRomCurve3(shots.map((s) => s.look.clone()), false, 'catmullrom', 0.4);
     this.last = shots.length - 1;
@@ -47,9 +55,10 @@ export class Rig {
     this.p.y += hop;
     this.l.y += hop * 0.5;
 
-    // portrait frames step back along the view axis and widen a little instead of cropping
+    // portrait frames step back (level, so a camera looking up at a tower is not driven into the ground)
+    // and widen a little instead of cropping
     if (portrait > 0) {
-      this.d.subVectors(this.p, this.l).normalize();
+      this.d.subVectors(this.p, this.l).setY(0).normalize();
       this.p.addScaledVector(this.d, portrait * 30);
       this.p.y += portrait * 4;
       fov *= 1 + portrait * 0.35;
@@ -71,6 +80,8 @@ export class Rig {
     camera.position.addScaledVector(this.right, this.mx * 3.2);
     camera.position.y += this.my * 1.8;
     this.l.addScaledVector(this.right, -this.mx * 1.2);
+    const floor = this.ground(camera.position.x, camera.position.z) + 2;
+    if (camera.position.y < floor) camera.position.y = floor;
     camera.lookAt(this.l);
     // a slow breathing drift so the frame is never quite still
     camera.rotateZ(Math.sin(performance.now() / 4200) * 0.004);

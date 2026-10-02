@@ -3,6 +3,7 @@ import { listenTilt } from './tilt';
 import { UI } from '../ui/ui';
 import { Stage } from '../stage';
 import { SHOTS } from '../stage/layout';
+import { WATER_Y } from '../stage/land';
 import { Post } from './post';
 import { Rig } from './rig';
 import { ScrollDirector } from './scroll';
@@ -58,7 +59,7 @@ export async function start() {
   if (import.meta.env.DEV) console.info(`[skopje] stage built in ${(performance.now() - t0).toFixed(0)}ms`);
 
   const camera = new PerspectiveCamera(45, 1, 1, 12000);
-  const rig = new Rig(SHOTS, q.parallax);
+  const rig = new Rig(SHOTS, q.parallax, (x, z) => Math.max(stage.land.surfaceHeight(x, z), WATER_Y));
   const scroll = new ScrollDirector(reduced);
   ui.attach(scroll);
   const post = new Post(renderer, q.samples);

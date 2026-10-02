@@ -151,7 +151,7 @@ export class Stage {
       if (Math.hypot((x - cross.pos.x) / 2.2, (z - cross.pos.z) / 1.1) < 330) return true;
       return false;
     };
-    const flora = new Flora(o.high, (x, z) => land.height(x, z), blocked, PATH, FOCUS.map((f) => ({ x: f.x, z: f.z })));
+    const flora = new Flora(o.high, (x, z) => land.surfaceHeight(x, z), blocked, PATH, FOCUS.map((f) => ({ x: f.x, z: f.z })));
     progress(0.9);
     await tick();
     const atmosphere = new Atmosphere(o.high, PATH);
