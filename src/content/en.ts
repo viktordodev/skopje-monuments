@@ -32,7 +32,7 @@ export const en: SiteText = {
   chapterWord: 'Chapter',
   railLabel: 'Monuments',
   outro: {
-    lines: ['The light goes.', 'The city stays.'],
+    lines: ['Every era.', 'Still here.'],
     body: 'Skopje has been a Roman town, a Byzantine stronghold, an Ottoman trading city, a laboratory of Yugoslav architecture and, in the 2010s, the stage for a monumental makeover. Every layer is still standing within a short walk of the Stone Bridge.',
     note: 'Historical details are compiled from public encyclopaedic sources. The scene is an artistic interpretation.',
     top: 'Back to the square',
