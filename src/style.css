@@ -347,9 +347,10 @@ html.webgl:not(.ready) .nav {
   /* scrolls when the list is taller than a short window instead of clipping the ends */
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: rgba(13, 10, 22, 0.78);
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  /* light enough that the scene shows through, blurred into soft colour behind the list */
+  background: rgba(13, 10, 22, 0.42);
+  backdrop-filter: blur(26px) saturate(1.35);
+  -webkit-backdrop-filter: blur(26px) saturate(1.35);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.7s var(--ease), visibility 0s linear 0.7s;
@@ -1027,7 +1028,16 @@ html.no-webgl .nowebgl {
     padding-left: 10px;
   }
   .menu a {
-    grid-template-columns: 36px 1fr;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    padding: 9px 0;
+  }
+  .menu__num {
+    font-size: 11px;
+  }
+  .menu__name {
+    font-size: 17px;
+    letter-spacing: 0.06em;
   }
   .menu__place {
     display: none;
