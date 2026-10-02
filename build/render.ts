@@ -198,7 +198,6 @@ export function renderBody(lang: Lang): string {
     ${MONUMENTS.map((_, i) => renderChapter(t, i)).join('')}
     <section class="outro" id="end" data-station="${n + 1}">
       <div class="outro__copy">
-        <p class="label"><i class="label__dot" aria-hidden="true"></i><span>${esc(t.outro.chapter)}</span></p>
         <h2 class="split">${t.outro.lines.map((l) => `<span class="line">${words(l)}</span>`).join(' ')}</h2>
         <p>${esc(t.outro.body)}</p>
         <p class="outro__note">${esc(t.outro.note)}</p>

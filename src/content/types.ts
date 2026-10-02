@@ -48,7 +48,7 @@ export interface SiteText {
   };
   chapterWord: string;
   railLabel: string;
-  outro: { chapter: string; lines: string[]; body: string; note: string; top: string };
+  outro: { lines: string[]; body: string; note: string; top: string };
   footer: string;
   noWebgl: string;
   monuments: Record<string, MonumentText>;
