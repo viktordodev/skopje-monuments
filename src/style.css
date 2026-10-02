@@ -347,13 +347,37 @@ html.webgl:not(.ready) .nav {
   /* scrolls when the list is taller than a short window instead of clipping the ends */
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* light enough that the scene shows through, blurred into soft colour behind the list */
-  background: rgba(13, 10, 22, 0.42);
-  backdrop-filter: blur(26px) saturate(1.35);
-  -webkit-backdrop-filter: blur(26px) saturate(1.35);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.7s var(--ease), visibility 0s linear 0.7s;
+}
+/* The frosted layer behind the open menu. It lives apart from the list on purpose: mobile WebKit drops
+   backdrop-filter on an element that scrolls or fades its opacity, and the menu does both. Here the blur
+   itself animates in, on a plain fixed layer. */
+.menu-shade {
+  position: fixed;
+  inset: 0;
+  z-index: 34;
+  pointer-events: none;
+  visibility: hidden;
+  background: rgba(13, 10, 22, 0);
+  -webkit-backdrop-filter: blur(0.1px) saturate(1.01);
+  backdrop-filter: blur(0.1px) saturate(1.01);
+  transition: background 0.7s var(--ease), backdrop-filter 0.7s var(--ease), -webkit-backdrop-filter 0.7s var(--ease), visibility 0s linear 0.7s;
+}
+.menu-open .menu-shade {
+  visibility: visible;
+  /* light enough that the scene shows through, blurred into soft colour behind the list */
+  background: rgba(13, 10, 22, 0.42);
+  -webkit-backdrop-filter: blur(26px) saturate(1.35);
+  backdrop-filter: blur(26px) saturate(1.35);
+  transition: background 0.7s var(--ease), backdrop-filter 0.7s var(--ease), -webkit-backdrop-filter 0.7s var(--ease);
+}
+/* no blur support at all: a solid enough shade to read the list over the scene */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .menu-open .menu-shade {
+    background: rgba(13, 10, 22, 0.88);
+  }
 }
 /* while the menu is open the bar gets a backdrop, so entries scrolled under it fade out instead of
    colliding with the logo */

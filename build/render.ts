@@ -179,6 +179,7 @@ export function renderBody(lang: Lang): string {
     </div>
   </header>
 
+  <div class="menu-shade" aria-hidden="true"></div>
   <nav class="menu" id="menu" aria-label="${esc(t.menu.title)}" data-lenis-prevent>
     <p class="menu__title">${esc(t.menu.title)}</p>
     <ol>${menuItems}</ol>
