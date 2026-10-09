@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { MONUMENTS, SITES } from '../src/content';
 import type { Lang, SiteText, Stat } from '../src/content';
 
-/** Absolute origin for canonical, hreflang, sitemap and social tags; set `SITE_URL` in Cloudflare Pages once a custom domain is live. */
-export const SITE_URL = (process.env.SITE_URL ?? 'https://skopje-monuments.pages.dev').replace(/\/$/, '');
+/** Absolute origin for canonical, hreflang, sitemap and social tags (override with the `SITE_URL` env var). */
+export const SITE_URL = (process.env.SITE_URL ?? 'https://skopje.viktordo.dev').replace(/\/$/, '');
 const AUTHOR = 'Viktor Dodev';
 
 /** Social preview image per language (1200×630, in public/); a page only advertises one that exists. */

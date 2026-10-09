@@ -32,7 +32,7 @@ Connect the repo in the Cloudflare dashboard (Workers & Pages → Create → Pag
 |---|---|
 | Build command | `npm run build` |
 | Build output directory | `dist` |
-| Environment variable | `SITE_URL` = the live origin. Defaults to `https://skopje-monuments.pages.dev`; set it when a custom domain goes live (feeds canonical, hreflang, sitemap and social tags) |
+| Live site | https://skopje.viktordo.dev (canonical, hreflang, sitemap and social tags use it; override with a `SITE_URL` environment variable if the domain changes) |
 | Node version | read from `.nvmrc` (22) |
 
 `public/_headers` sets long-lived caching for hashed assets and basic security headers.
